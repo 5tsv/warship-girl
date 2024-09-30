@@ -1,1 +1,578 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"/><link rel="shortcut icon" href="/warship-girl/favicon.ico"/><meta name="viewport" content="width=device-width,initial-scale=1"/><meta name="theme-color" content="#000000"/><link rel="manifest" href="/warship-girl/manifest.json"/><title>React App</title><link href="/warship-girl/static/css/main.c616717b.chunk.css" rel="stylesheet"></head><body><div id="root"></div><script>!function(f){function e(e){for(var r,t,n=e[0],o=e[1],u=e[2],i=0,l=[];i<n.length;i++)t=n[i],p[t]&&l.push(p[t][0]),p[t]=0;for(r in o)Object.prototype.hasOwnProperty.call(o,r)&&(f[r]=o[r]);for(s&&s(e);l.length;)l.shift()();return c.push.apply(c,u||[]),a()}function a(){for(var e,r=0;r<c.length;r++){for(var t=c[r],n=!0,o=1;o<t.length;o++){var u=t[o];0!==p[u]&&(n=!1)}n&&(c.splice(r--,1),e=i(i.s=t[0]))}return e}var t={},p={1:0},c=[];function i(e){if(t[e])return t[e].exports;var r=t[e]={i:e,l:!1,exports:{}};return f[e].call(r.exports,r,r.exports,i),r.l=!0,r.exports}i.m=f,i.c=t,i.d=function(e,r,t){i.o(e,r)||Object.defineProperty(e,r,{enumerable:!0,get:t})},i.r=function(e){"undefined"!=typeof Symbol&&Symbol.toStringTag&&Object.defineProperty(e,Symbol.toStringTag,{value:"Module"}),Object.defineProperty(e,"__esModule",{value:!0})},i.t=function(r,e){if(1&e&&(r=i(r)),8&e)return r;if(4&e&&"object"==typeof r&&r&&r.__esModule)return r;var t=Object.create(null);if(i.r(t),Object.defineProperty(t,"default",{enumerable:!0,value:r}),2&e&&"string"!=typeof r)for(var n in r)i.d(t,n,function(e){return r[e]}.bind(null,n));return t},i.n=function(e){var r=e&&e.__esModule?function(){return e.default}:function(){return e};return i.d(r,"a",r),r},i.o=function(e,r){return Object.prototype.hasOwnProperty.call(e,r)},i.p="/warship-girl/";var r=window.webpackJsonp=window.webpackJsonp||[],n=r.push.bind(r);r.push=e,r=r.slice();for(var o=0;o<r.length;o++)e(r[o]);var s=n;a()}([])</script><script src="/warship-girl/static/js/2.2a84f464.chunk.js"></script><script src="/warship-girl/static/js/main.4903e496.chunk.js"></script></body></html>
+﻿<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#000000" />
+  <link rel="icon" href="/dist/favicon.ico" />
+  <script src="https://unpkg.com/vue@2"></script>
+  <script src="https://unpkg.com/vuex@3"></script>
+  <script src="https://unpkg.com/javascript-lp-solver/prod/solver.js"></script>
+  <script>
+    if (typeof Vue === 'undefined') {document.write(decodeURI('%3Cscript%20src=%22./vue.js%22%3E%3C/script%3E'));}
+    if (typeof Vuex === 'undefined') {document.write(decodeURI('%3Cscript%20src=%22./vuex.js%22%3E%3C/script%3E'));}
+    if (typeof solver === 'undefined') {document.write(decodeURI('%3Cscript%20src=%22./solver.js%22%3E%3C/script%3E'));}
+  </script>
+  <title>Vue App</title>
+</head>
+<body>
+  <div id="app">
+    <div style="display: grid;grid-template-columns: repeat(auto-fit,310px);">
+      <div style="display: flex;">
+        <table>
+          <tr>
+            <th colspan=" 2">工程局系数</th>
+          </tr>
+          <tr v-for="(item,index) in Object.keys(weight).filter(i=>i.length>1)" :key="index">
+          <th>{{item}}</th>
+          <td><input v-model.number="weight[item]" type="number">
+            </td>
+          </tr>
+        </table>
+        <table>
+          <tr>
+            <th colspan="2">资源权重</th>
+          </tr>
+          <tr v-for="(item,index) in Object.keys(weight).filter(i=>i.length==1)" :key="index">
+            <th>{{item}}</th>
+            <td><input v-model.number="weight[item]" type="number">
+            </td>
+          </tr>
+          <tr>
+            <td colspan="2" rowspan="2"><button @click="saveStateweight">保存</button></td>
+          </tr>
+        </table>
+      </div>
+      <div>
+        <table>
+          <tr>
+            <th>火力等级</th>
+            <td><input v-model.number="user.火力" type="number"></td>
+          </tr>
+          <tr>
+            <th>鱼雷等级</th>
+            <td><input v-model.number="user.鱼雷" type="number"></td>
+          </tr>
+          <tr>
+            <th>装甲等级</th>
+            <td><input v-model.number="user.装甲" type="number"></td>
+          </tr>
+          <tr>
+            <th>对空等级</th>
+            <td><input v-model.number="user.对空" type="number"></td>
+          </tr>
+          <tr>
+            <th>每级经验</th>
+            <td><input v-model.number="user.经验" type="number"></td>
+          </tr>
+          <tr>
+            <td><button @click="getshipsolve">计算</button></td>
+            <td><button @click="refreshData">更新</button></td>
+          </tr>
+          <tr>
+            <td><button @click="resetShipData">初始化</button></td>
+            <td><button @click="toAdd">添加舰船</button></td>
+          </tr>
+          <tr>
+            <td><a id="download-link" target="_blank" style="display: none"></a>
+              <input type="file" @change="loadJsonFile"></input>
+            </td>
+            <td><button @click="downloadData">导出</button></td>
+          </tr>
+          <tr>
+            <td><button @click="tomodelSetting">计算参数设置</button></td>
+          </tr>
+        </table>
+      </div>
+    </div>
+    <div>
+      <table>
+        <tr>
+          <th v-for="ship in Object.keys(shipSum)">{{ship}}</th>
+        </tr>
+        <tr>
+          <td v-for="ship in shipSum">{{ship}}</td>
+        </tr>
+      </table>
+      <table>
+        <tr>
+          <th>火力需求</th>
+          <th>鱼雷需求</th>
+          <th>装甲需求</th>
+          <th>对空需求</th>
+        </tr>
+        <tr>
+          <td>{{getModel.constraints.火力.min}}</td>
+          <td>{{getModel.constraints.鱼雷.min}}</td>
+          <td>{{getModel.constraints.装甲.min}}</td>
+          <td>{{getModel.constraints.对空.min}}</td>
+        </tr>
+      </table>
+      <table>
+        <tr>
+          <th>火力强化</th>
+          <th>鱼雷强化</th>
+          <th>装甲强化</th>
+          <th>对空强化</th>
+          <th>总消耗</th>
+          <th>总数量</th>
+        </tr>
+        <tr>
+          <td>{{resData.火力}}</td>
+          <td>{{resData.鱼雷}}</td>
+          <td>{{resData.装甲}}</td>
+          <td>{{resData.对空}}</td>
+          <td>{{resData.总消耗}}</td>
+          <td>{{resData.总数量}}</td>
+        </tr>
+      </table>
+      <table v-show=res[0]>
+        <tr>
+          <th>舰名</th>
+          <th>数量</th>
+        </tr>
+        <tr v-for="(ship,index) in res" :key=index>
+          <td>{{ship[0]}}</td>
+          <td>{{ship[1]}}</td>
+        </tr>
+      </table>
+    </div>
+    <table>
+      <tr>
+        <th>舰名</th>
+        <th>舰种</th>
+        <th>火力</th>
+        <th>鱼雷</th>
+        <th>装甲</th>
+        <th>对空</th>
+        <th>数量</th>
+        <th>操作</th>
+      </tr>
+      <tr v-for="(ship,index) in shipData" :key=index>
+        <td>{{ ship.舰名 }}</td>
+        <td>{{ ship.舰种 }}</td>
+        <td>{{ ship.火力 }}</td>
+        <td>{{ ship.鱼雷 }}</td>
+        <td>{{ ship.装甲 }}</td>
+        <td>{{ ship.对空 }}</td>
+        <td>
+          <div style="display: flex;/*! flex-direction: row; */">
+            <button @click=changeShipSum(shipIndex[ship.舰名],-1)>-</button>
+            {{ ship.数量 }}
+            <button @click=changeShipSum(shipIndex[ship.舰名],1)>+</button>
+          </div>
+        </td>
+        <td>
+          <button @click=toEdit(shipIndex[ship.舰名])>编辑</button>
+        </td>
+      </tr>
+    </table>
+    <div class="edit" v-if="isAdd">
+      <div class="edit-container">
+        <div><label for="索引">索引</label>：<input id="索引" name="索引" v-model="editIndex"></div>
+        <div><label for="舰名">舰名</label>：<input id="舰名" name="舰名" v-model="ship.舰名"></div>
+        <div><label for="舰种">舰种</label>：<input id="舰种" v-model="ship.舰种"></div>
+        <div><label for="油">油</label>：<input id="油" v-model.number="ship.油" type="number"></div>
+        <div><label for="弹">弹</label>：<input id="弹" v-model.number="ship.弹" type="number"></div>
+        <div><label for="钢">钢</label>：<input id="钢" v-model.number="ship.钢" type="number"></div>
+        <div><label for="铝">铝</label>：<input id="铝" v-model.number="ship.铝" type="number"></div>
+        <div><label for="火力">火力</label>：<input id="火力" v-model.number="ship.火力" type="number"></div>
+        <div><label for="鱼雷">鱼雷</label>：<input id="鱼雷" v-model.number="ship.鱼雷" type="number"></div>
+        <div><label for="装甲">装甲</label>：<input id="装甲" v-model.number="ship.装甲" type="number"></div>
+        <div><label for="对空">对空</label>：<input id="对空" v-model.number="ship.对空" type="number"></div>
+        <div><label for="数量">数量</label>：<input id="数量" v-model.number="ship.数量" type="number"></div>
+        <div style="display: flex;justify-content: center;">
+          <button @click="addShip({ship,index:editIndex});isAdd=false">保存</button>
+          <button @click="cancelAdd">取消</button>
+        </div>
+      </div>
+    </div>
+    <div class="edit" v-if="isEdit">
+      <div class="edit-container">
+        <div><label for="索引">索引</label>：{{editIndex}}</div>
+        <div><label for="舰名">舰名</label>：<input id="舰名" name="舰名" v-model="ship.舰名"></div>
+        <div><label for="舰种">舰种</label>：<input id="舰种" v-model="ship.舰种"></div>
+        <div><label for="油">油</label>：<input id="油" v-model.number="ship.油" type="number"></div>
+        <div><label for="弹">弹</label>：<input id="弹" v-model.number="ship.弹" type="number"></div>
+        <div><label for="钢">钢</label>：<input id="钢" v-model.number="ship.钢" type="number"></div>
+        <div><label for="铝">铝</label>：<input id="铝" v-model.number="ship.铝" type="number"></div>
+        <div><label for="火力">火力</label>：<input id="火力" v-model.number="ship.火力" type="number"></div>
+        <div><label for="鱼雷">鱼雷</label>：<input id="鱼雷" v-model.number="ship.鱼雷" type="number"></div>
+        <div><label for="装甲">装甲</label>：<input id="装甲" v-model.number="ship.装甲" type="number"></div>
+        <div><label for="对空">对空</label>：<input id="对空" v-model.number="ship.对空" type="number"></div>
+        <div><label for="数量">数量</label>：<input id="数量" v-model.number="ship.数量" type="number"></div>
+        <div style="display: flex;justify-content: center;">
+          <button @click="saveship(editIndex)">保存</button>
+          <button @click="addShip({index:editIndex,add:1});isEdit=false">删除</button>
+          <button @click="cancelEdit">取消</button>
+        </div>
+      </div>
+    </div>
+    <div class="edit" v-if="isModelSet">
+      <div class="edit-container">
+        <div><label for="timeout">timeout：{{timeout/1000}}s</label></div><div><input id="timeout" name="timeout" v-model.number="timeout" type="number"></div>
+        <div><label for="tolerance">tolerance：{{tolerance}}%</label></div><div><input id="tolerance" name="tolerance" v-model.number="tolerance" type="number"></div>
+        <div style="display: flex;justify-content: center;">
+          <button @click="isModelSet=false">关闭</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+<script>
+  const loadState = key => {
+    try {
+      const data = localStorage.getItem(key)
+      if (data) {
+        return JSON.parse(data)
+      }
+    } catch (error) {
+      console.log(error)
+    }
+
+    return null
+  }
+  const saveState = (key, data) => {
+    try {
+      const state = JSON.stringify(data)
+      localStorage.setItem(key, state)
+    } catch (error) {
+      console.log(error)
+    }
+  }
+  const removeState = key => {
+    try {
+      localStorage.removeItem(key)
+    } catch (error) {
+      console.log(error)
+    }
+  }
+  Vue.use(Vuex)
+  const store = new Vuex.Store({
+    state: {
+      shipData: loadState('shipData')||[],
+      weight: loadState('weight') || {
+        '驱逐舰': 1,
+        '轻巡洋舰': 1,
+        '重巡洋舰': 1,
+        '轻型航母': 1,
+        '战列舰': 1,
+        '战列巡洋舰': 1,
+        '油': 1,
+        '弹': 1,
+        '钢': 1,
+        '铝': 1
+      },
+      user: {
+        '经验': 12,
+        '火力': 25,
+        '鱼雷': 55,
+        '装甲': 25,
+        '对空': 30
+      },
+      modelSetting:loadState('modelSetting') || {
+        timeout:1000,
+        tolerance:0.05
+      }
+    },
+    //strict: true,
+    mutations: {
+      updateData(state, data) {
+        state.shipData = data
+        saveState('shipData', data)
+      },
+      changeShip(state, {
+        ship,
+        index
+      }) {
+        Vue.set(state.shipData, index, ship)
+        saveState('shipData', state.shipData)
+      },
+      setWeight(state, weight) {
+        state.weight = weight
+        saveState('weight', weight)
+      },
+      addShip(state, { ship, index, add }) {
+        console.log(ship, index, add)
+        if (add == 1) { state.shipData.splice(index, add) }
+        else { state.shipData.splice(index, add, ship) }
+        saveState('shipData', state.shipData)
+      },
+      setMpdelTimeout(state,value){
+        state.modelSetting.timeout=value||1000
+        saveState('modelSetting',state.modelSetting)
+      },
+      setMpdelTolerance(state,value){
+        state.modelSetting.tolerance=value||0.05
+        saveState('modelSetting',state.modelSetting)
+      }
+    },
+    getters: {
+      extraShip(state) {
+        return state.shipData.filter(ship => ship.数量 > 0)
+      },
+      shipIndex(state) {
+        temp = {}
+        state.shipData.forEach((ship, index) => {
+          temp[ship.舰名] = index
+        })
+        return temp
+      },
+      ships(state) {
+        return state.shipData
+      },
+      getModel(state, getters) {
+        model = {
+          'optimize': '消耗',
+          'options': state.modelSetting,
+          'opType': 'min',
+          'constraints': {
+            '火力': { 'min': state.user.经验 * state.user.火力 },
+            '鱼雷': { 'min': state.user.经验 * state.user.鱼雷 },
+            '装甲': { 'min': state.user.经验 * state.user.装甲 },
+            '对空': { 'min': state.user.经验 * state.user.对空 }
+          },
+          'variables': {},
+          'ints': {}
+        }
+        getters.extraShip.forEach(ship => {
+          q = state.weight[ship.舰种] || 1
+          model.constraints[ship.舰名] = { 'max': ship.数量 }
+          model.variables[ship.舰名] = {
+            '火力': Math.floor(ship.火力 * q),
+            '鱼雷': Math.floor(ship.鱼雷 * q),
+            '装甲': Math.floor(ship.装甲 * q),
+            '对空': Math.floor(ship.对空 * q),
+            '消耗': ship.油 * state.weight.油 + ship.弹 * state.weight.弹 + ship.钢 * state.weight.钢 + ship.铝 * state.weight.铝
+          }
+          model.variables[ship.舰名][ship.舰名] = 1
+          model.ints[ship.舰名] = 1
+        })
+        return model
+      }
+    }
+  })
+  var app = new Vue({
+    el: '#app',
+    data: {
+      message: 'Hello Vue!',
+      version:"24.1001.00",
+      isEdit: false,
+      isAdd: false,
+      isModelSet:false,
+      editIndex: -1,
+      ship: {},
+      res: []
+    },
+    created() {
+      console.log(`version:${this.version}`)
+      if (!loadState('shipData')) {
+        console.log('初始化')
+        this.resetShipData()
+      }
+    },
+    store,
+    computed: {
+      ...Vuex.mapState(['shipData', 'weight', 'user']),
+      ...Vuex.mapGetters(['extraShip', 'shipIndex', 'ships', 'getModel']),
+      shipSum() {
+        let temp = {}
+        this.extraShip.forEach(ship => {
+          temp['可强化舰船数']=(temp['可强化舰船数']||0)+ship.数量
+          temp[ship.舰种]=(temp[ship.舰种]||0)+ship.数量
+        })
+        return temp
+      },
+      resData() {
+        let temp = {
+          火力: 0,
+          鱼雷: 0,
+          装甲: 0,
+          对空: 0,
+          总消耗: 0,
+          总数量: 0
+        }
+        this.res.forEach(([key, x]) => {
+          let ship = this.shipData[this.shipIndex[key]]
+          q = this.weight[ship.舰种] || 1
+          //console.log(key)
+          temp.火力 += Math.floor(ship.火力 * q) * x
+          temp.鱼雷 += Math.floor(ship.鱼雷 * q) * x
+          temp.装甲 += Math.floor(ship.装甲 * q) * x
+          temp.对空 += Math.floor(ship.对空 * q) * x
+          temp.总消耗 += (ship.油 * this.weight.油 + ship.弹 * this.weight.弹 + ship.钢 * this.weight.钢 + ship.铝 * this.weight.铝) * x
+          temp.总数量 += x
+        })
+        return temp
+      },
+      timeout:{
+        get(){
+          return this.$store.state.modelSetting.timeout
+        },
+        set(value){
+          this.$store.commit('setMpdelTimeout',value)
+        }
+      },
+      tolerance:{
+        get(){
+          return this.$store.state.modelSetting.tolerance
+        },
+        set(value){
+          this.$store.commit('setMpdelTolerance',value)
+        }
+      }
+    },
+    methods: {
+      ...Vuex.mapMutations(['updateData', 'changeShip', 'setWeight', 'addShip','setmodelSetting']),
+      refreshData() {
+        this.res.forEach(
+          ship => {
+            this.changeShipSum(this.shipIndex[ship[0]], ship[1] * -1)
+          }
+        )
+      },
+      toEdit(index) {
+        this.isEdit = true
+        this.editIndex = index
+        this.ship = Object.assign({}, this.ships[index])
+      },
+      cancelEdit() {
+        this.isEdit = false
+        this.editIndex = -1
+        this.ship = {}
+      },
+      toAdd() {
+        this.isAdd = true
+        this.editIndex = this.shipData.length
+        this.ship = {}
+      },
+      cancelAdd() {
+        this.isAdd = false
+        this.editIndex = -1
+        this.ship = {}
+      },
+      saveship(index) {
+        this.changeShip({
+          ship: this.ship,
+          index
+        })
+        this.isEdit = false
+      },
+      getshipsolve() {
+        this.res = []
+        alert('计算中')
+        res = solver.Solve(this.getModel)
+        console.log(res)
+        alert('计算完成')
+        this.extraShip.forEach(item => {
+          if (res[item.舰名] != undefined) {
+            temp = [item.舰名, Math.ceil(res[item.舰名])]
+            console.log(temp)
+            this.res.push(temp)
+          }
+        })
+      },
+      saveStateweight() {
+        this.setWeight(this.weight)
+      },
+      downloadData() {
+        // 将JSON对象转换为字符串
+        const dataString = JSON.stringify(this.shipData);
+        const date=new Date()
+        // 创建Blob对象
+        const blob = new Blob([dataString], { type: 'text/plain' });
+        // 创建一个a标签模拟点击下载
+        const link = document.querySelector("#download-link")
+        link.href = window.URL.createObjectURL(blob);
+        link.download = `shipData_${date.getFullYear()}.${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}${String(date.getHours()).padStart(2, '0')}.txt`
+        link.dispatchEvent(new MouseEvent("click"));
+      },
+      loadJsonFile(event) {
+        const file = event.target.files[0]; // 获取选中的文件
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            try {
+              jsonData = JSON.parse(e.target.result);
+              this.updateData(jsonData)
+            } catch (err) {
+              console.error('Error parsing JSON:', err);
+            }
+          };
+          reader.readAsText(file); // 读取文件内容
+        } else {
+          console.log('No file selected');
+        }
+      },
+      changeShipSum(index, number) {
+        //console.log(index,number)
+        let ship = Object.assign({}, this.shipData[index])
+        //console.log(ship)
+        ship.数量 += number
+        this.changeShip({ ship, index })
+      },
+      tomodelSetting(){
+        this.isModelSet=true
+      },
+      async resetShipData() {
+        let response=await fetch("https://5tsv.github.io/static/test/shipData.json")
+        let shipData=await response.json()
+        this.updateData(shipData)
+      }
+    }
+  })
+</script>
+<style>
+  table {
+    width: auto;
+    border-collapse: collapse;
+  }
+  th,
+  td {
+    padding: 8px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+  }
+  tr:hover {
+    background-color: #eaeaea;
+  }
+  table {
+    border: 2px solid #eed6ad;
+    border-radius: 3px;
+    background-color: #fff;
+  }
+  th {
+    background-color: #eed6ad;
+    color: rgba(89, 67, 67, 0.66);
+    cursor: pointer;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
+  .edit {
+    position: fixed;
+    z-index: 1300;
+    inset: 0px;
+    align-items: center;
+    justify-content: center;
+    display: flex;
+    flex-direction: column;
+    background-color: rgba(0, 0, 0, 0.5);
+  }
+  label {
+    display: inline-block;
+    width: 32px;
+  }
+  .edit-container {
+    margin: 0px auto;
+    padding: 20px 30px;
+    background-color: #eed6ad;
+    border-radius: 22px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.33);
+  }
+  td input {
+    width: 60px;
+  }
+</style>
+</html>
