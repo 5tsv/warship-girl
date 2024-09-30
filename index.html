@@ -515,7 +515,7 @@
         this.isModelSet=true
       },
       async resetShipData() {
-        let response=await fetch("https://5tsv.github.io/static/test/shipData.json")
+        let response=await fetch("./shipData.json")
         let shipData=await response.json()
         this.updateData(shipData)
       }
