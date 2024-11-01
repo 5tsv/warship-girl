@@ -96,7 +96,7 @@
           <td v-for="ship in shipSum">{{ship}}</td>
         </tr>
       </table>
-      <table>
+      <table v-show="extraShip[0]">
         <tr>
           <th v-for="ship in Object.keys(totalData)">{{ship}}</th>
         </tr>
@@ -380,7 +380,7 @@
     el: '#app',
     data: {
       message: 'Hello Vue!',
-      version: "24.1031.01",
+      version: "24.1101.10",
       isEdit: false,
       isAdd: false,
       isModelSet: false,
@@ -506,13 +506,18 @@
         res = solver.Solve(this.getModel)
         console.log(res)
         alert('计算完成')
+        let error=[]
         this.extraShip.forEach(item => {
           if (res[item.舰名] != undefined) {
+            if (res[item.舰名]<0){error.push(item.舰名)}
             temp = [item.舰名, Math.ceil(res[item.舰名])]
             console.log(temp)
             this.res.push(temp)
           }
         })
+        if (error.length>0){
+          alert(`求解出错，方案中的${error.join("、")}小于0，请检查可用值是否大于需求值`)
+        }
       },
       saveStateweight() {
         this.setWeight(this.weight)
@@ -573,7 +578,8 @@
         this.isModelSet = true
       },
       async resetShipData() {
-        let response = await fetch("./shipData.json")
+        let url=location.protocol=="file:"?"https://warship-girl.pages.dev/shipData.json":"./shipData.json"
+        let response = await fetch(url)
         let shipData = await response.json()
         this.updateData(shipData)
       }
