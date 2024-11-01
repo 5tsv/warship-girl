@@ -336,7 +336,7 @@
         return state.shipData.filter(ship => ship.数量 > 0)
       },
       shipIndex(state) {
-        temp = {}
+        let temp = {}
         state.shipData.forEach((ship, index) => {
           temp[ship.舰名] = index
         })
@@ -380,7 +380,7 @@
     el: '#app',
     data: {
       message: 'Hello Vue!',
-      version: "24.1101.10",
+      version: "24.1101.11",
       isEdit: false,
       isAdd: false,
       isModelSet: false,
@@ -506,17 +506,21 @@
         res = solver.Solve(this.getModel)
         console.log(res)
         alert('计算完成')
-        let error=[]
+        let error_0=[]
+        let error_1=[]
         this.extraShip.forEach(item => {
           if (res[item.舰名] != undefined) {
-            if (res[item.舰名]<0){error.push(item.舰名)}
-            temp = [item.舰名, Math.ceil(res[item.舰名])]
-            console.log(temp)
+            let temp = [item.舰名, Math.ceil(res[item.舰名])]
+            if (temp[1]<0){error_0.push(temp[0])}
+            if (temp[1]>this.shipData[this.shipIndex[item.舰名]]['数量']){error_1.push(temp[0])}
+            //console.log(temp)
             this.res.push(temp)
           }
         })
-        if (error.length>0){
-          alert(`求解出错，方案中的${error.join("、")}小于0，请检查可用值是否大于需求值`)
+        if (error_0.length>0||error_1.length>0){
+          let e=`求解出错，${error_0.length>0?'方案中的'+error_0.join("、")+'小于0，':''}${error_1.length>0?'方案中的'+error_1.join("、")+'大于舰船设定值，':''}请检查可用值是否大于需求值`
+          alert(e)
+          console.error(e)
         }
       },
       saveStateweight() {
